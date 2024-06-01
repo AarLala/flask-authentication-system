@@ -1,4 +1,4 @@
-from flask import Flask, request,render_template, redirect,session
+from flask import Flask, request, render_template, redirect,session
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 
@@ -6,6 +6,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 app.secret_key = 'secret_key'
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,21 +47,23 @@ def register():
 
     return render_template('register.html')
 
-@app.route('/login',methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
 
         user = User.query.filter_by(email=email).first()
-        
+
         if user and user.check_password(password):
             session['email'] = user.email
             return redirect('/dashboard')
         else:
-            return render_template('login.html',error='Invalid user')
+            error = 'Invalid email or password'
+            return render_template('login.html', error=error)
 
     return render_template('login.html')
+
 
 
 @app.route('/dashboard')
